@@ -202,6 +202,20 @@ func (rc *NodeClient) TransactionByHash(txnHash string) (data *api.Transaction, 
 	return data, nil
 }
 
+func (rc *NodeClient) AccountsEvents(address string, creationNumber string) (data *[]api.EventV2, err error) {
+	restUrl := rc.baseUrl.JoinPath("accounts/", address, "/events/", creationNumber)
+	data, err = Get[*[]api.EventV2](rc, restUrl.String())
+	if err != nil {
+		return data, fmt.Errorf("get Events api err: %w", err)
+	}
+	return data, nil
+}
+
+// "accounts/{}/events/{}/{}",
+// address.to_hex_literal(),
+// struct_tag,
+// field_name
+
 // TransactionByVersion gets info on a transaction by version number
 // The transaction will have been committed.  The response will not be of the type [api.PendingTransaction].
 func (rc *NodeClient) TransactionByVersion(version uint64) (data *api.CommittedTransaction, err error) {
@@ -377,7 +391,6 @@ func (rc *NodeClient) PollForTransactions(txnHashes []string, options ...any) er
 	}
 	return nil
 }
-
 // Transactions Get recent transactions.
 //
 // Arguments:

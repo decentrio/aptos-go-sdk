@@ -254,6 +254,10 @@ func (client *Client) PollForTransactions(txnHashes []string, options ...any) er
 	return client.nodeClient.PollForTransactions(txnHashes, options...)
 }
 
+func (client *Client) AccountsEvents(addr, creationNumber string) (*[]api.EventV2, error) {
+	return client.nodeClient.AccountsEvents(addr, creationNumber)
+}
+
 // WaitForTransaction Do a long-GET for one transaction and wait for it to complete
 //
 //	data, err := client.WaitForTransaction("0x1234")
