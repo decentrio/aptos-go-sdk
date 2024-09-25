@@ -3,6 +3,7 @@ package crypto
 import (
 	"errors"
 	"fmt"
+
 	"github.com/aptos-labs/aptos-go-sdk/bcs"
 )
 
@@ -38,6 +39,7 @@ const (
 	AccountAuthenticatorMultiEd25519 AccountAuthenticatorType = 1 // AccountAuthenticatorMultiEd25519 is the authenticator type for multi-ed25519 accounts
 	AccountAuthenticatorSingleSender AccountAuthenticatorType = 2 // AccountAuthenticatorSingleSender is the authenticator type for single-key accounts
 	AccountAuthenticatorMultiKey     AccountAuthenticatorType = 3 // AccountAuthenticatorMultiKey is the authenticator type for multi-key accounts
+	AccountAuthenticatorBls          AccountAuthenticatorType = 4
 )
 
 // AccountAuthenticator a generic authenticator type for a transaction
@@ -101,6 +103,8 @@ func (ea *AccountAuthenticator) UnmarshalBCS(des *bcs.Deserializer) {
 		ea.Auth = &SingleKeyAuthenticator{}
 	case AccountAuthenticatorMultiKey:
 		ea.Auth = &MultiKeyAuthenticator{}
+	case AccountAuthenticatorBls:
+		ea.Auth = &BlsAuthenticator{}
 	default:
 		des.SetError(fmt.Errorf("unknown AccountAuthenticator kind: %d", kindNum))
 		return
@@ -153,6 +157,17 @@ func (ea *AccountAuthenticator) FromKeyAndSignature(key PublicKey, sig Signature
 			}
 		default:
 			return errors.New("invalid signature type for MultiKey")
+		}
+	case *BlsPublicKey:
+		switch sig.(type) {
+		case *BlsSignature:
+			ea.Variant = AccountAuthenticatorBls
+			ea.Auth = &BlsAuthenticator{
+				PubKey: key.(*BlsPublicKey),
+				Sig:    sig.(*BlsSignature),
+			}
+		default:
+			return errors.New("invalid signature type for BlsPublicKey")
 		}
 	default:
 		return errors.New("Invalid key type")

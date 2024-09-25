@@ -2,6 +2,7 @@ package crypto
 
 import (
 	"fmt"
+
 	"github.com/aptos-labs/aptos-go-sdk/bcs"
 	"github.com/aptos-labs/aptos-go-sdk/internal/util"
 )
@@ -26,6 +27,7 @@ const (
 	MultiEd25519Scheme    DeriveScheme = 1   // MultiEd25519Scheme is the scheme for deriving the AuthenticationKey for Multi-ed25519 accounts
 	SingleKeyScheme       DeriveScheme = 2   // SingleKeyScheme is the scheme for deriving the AuthenticationKey for single-key accounts
 	MultiKeyScheme        DeriveScheme = 3   // MultiKeyScheme is the scheme for deriving the AuthenticationKey for multi-key accounts
+	BlsKeyScheme          DeriveScheme = 5   // BlsKeyScheme is the scheme for deriving the AuthenticationKey for bls accounts
 	DeriveObjectScheme    DeriveScheme = 252 // DeriveObjectScheme is the scheme for deriving the AuthenticationKey for objects, used to create new object addresses
 	NamedObjectScheme     DeriveScheme = 254 // NamedObjectScheme is the scheme for deriving the AuthenticationKey for named objects, used to create new named object addresses
 	ResourceAccountScheme DeriveScheme = 255 // ResourceAccountScheme is the scheme for deriving the AuthenticationKey for resource accounts, used to create new resource account addresses
