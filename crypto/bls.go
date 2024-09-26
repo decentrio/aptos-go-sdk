@@ -40,6 +40,11 @@ func (key *BlsPrivateKey) Sign(msg []byte) (authenticator *AccountAuthenticator,
 	}, nil
 }
 
+func (key *BlsPrivateKey) FromBytes(bytes []byte) (err error) {
+	key.Inner, err = cosmosbls.SecretKeyFromBytes(bytes)
+	return err
+}
+
 type BlsPublicKey struct {
 	Inner [cosmosbls.PubkeyLength]byte // Inner is the actual public key
 }
