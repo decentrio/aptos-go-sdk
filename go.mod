@@ -33,3 +33,5 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	nhooyr.io/websocket v1.8.11 // indirect
 )
+
+replace github.com/cosmos/crypto => github.com/decentrio/crypto v0.1.3-0.20240927062649-7a497320b85c

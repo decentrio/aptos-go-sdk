@@ -6,12 +6,9 @@ import (
 	"github.com/aptos-labs/aptos-go-sdk/bcs"
 	"github.com/aptos-labs/aptos-go-sdk/internal/util"
 	cosmosbls "github.com/cosmos/crypto/curves/bls12381"
-	blst "github.com/supranational/blst/bindings/go"
 )
 
-var POP_DST = []byte("BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_")
-
-
+const PopLength = 96
 
 type BlsPrivateKey struct {
 	Inner cosmosbls.SecretKey // Inner is the actual private key
@@ -45,13 +42,60 @@ func (key *BlsPrivateKey) Sign(msg []byte) (authenticator *AccountAuthenticator,
 	}, nil
 }
 
-func GenerateBlsPop(msg []byte) []byte {
-	pop := blst.HashToG2(msg, dst)
-	return pop.Serialize()
+func (key *BlsPrivateKey) GenerateBlsPop() (*BlsProofOfPossession, error) {
+	popBytes := key.Inner.CreatePop().Marshal()
+	var pop BlsProofOfPossession
+	err := pop.FromBytes(popBytes)
+	if err != nil {
+		return nil, err
+	}
+	return &pop, nil
 }
 func (key *BlsPrivateKey) FromBytes(bytes []byte) (err error) {
 	key.Inner, err = cosmosbls.SecretKeyFromBytes(bytes)
 	return err
+}
+
+type BlsProofOfPossession struct {
+	Inner [PopLength]byte
+}
+
+func (key *BlsProofOfPossession) MarshalBCS(ser *bcs.Serializer) {
+	var pk []byte
+	pk = key.Inner[:]
+	ser.WriteBytes(pk)
+}
+
+func (key *BlsProofOfPossession) UnmarshalBCS(des *bcs.Deserializer) {
+	kb := des.ReadBytes()
+	if des.Error() != nil {
+		return
+	}
+	err := key.FromBytes(kb)
+	if err != nil {
+		des.SetError(err)
+		return
+	}
+}
+
+func (key *BlsProofOfPossession) Bytes() []byte {
+	return key.Inner[:]
+}
+
+func (key *BlsProofOfPossession) FromBytes(bytes []byte) (err error) {
+	if len(bytes) != PopLength {
+		return errors.New("invalid bls public key size")
+	}
+	copy(key.Inner[:], bytes)
+	return nil
+}
+
+func (key *BlsProofOfPossession) FromHex(hexStr string) (err error) {
+	bytes, err := util.ParseHex(hexStr)
+	if err != nil {
+		return err
+	}
+	return key.FromBytes(bytes)
 }
 
 type BlsPublicKey struct {
