@@ -6,7 +6,12 @@ import (
 	"github.com/aptos-labs/aptos-go-sdk/bcs"
 	"github.com/aptos-labs/aptos-go-sdk/internal/util"
 	cosmosbls "github.com/cosmos/crypto/curves/bls12381"
+	blst "github.com/supranational/blst/bindings/go"
 )
+
+var POP_DST = []byte("BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_")
+
+
 
 type BlsPrivateKey struct {
 	Inner cosmosbls.SecretKey // Inner is the actual private key
@@ -40,6 +45,10 @@ func (key *BlsPrivateKey) Sign(msg []byte) (authenticator *AccountAuthenticator,
 	}, nil
 }
 
+func GenerateBlsPop(msg []byte) []byte {
+	pop := blst.HashToG2(msg, dst)
+	return pop.Serialize()
+}
 func (key *BlsPrivateKey) FromBytes(bytes []byte) (err error) {
 	key.Inner, err = cosmosbls.SecretKeyFromBytes(bytes)
 	return err
