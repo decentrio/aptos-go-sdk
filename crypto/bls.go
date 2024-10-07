@@ -42,6 +42,12 @@ func (key *BlsPrivateKey) Sign(msg []byte) (authenticator *AccountAuthenticator,
 	}, nil
 }
 
+func (key *BlsPrivateKey) GeneratePubkey() (pk *BlsPublicKey, err error) {
+	bz := key.Inner.PublicKey().Marshal()
+	err = pk.FromBytes(bz)
+	return
+}
+
 func (key *BlsPrivateKey) GenerateBlsPop() (*BlsProofOfPossession, error) {
 	popBytes := key.Inner.CreatePop().Marshal()
 	var pop BlsProofOfPossession
